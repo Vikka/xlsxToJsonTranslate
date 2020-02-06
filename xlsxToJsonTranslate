@@ -1,32 +1,30 @@
 #!/usr/bin/env python3
 
-import getopt
-import sys
 from collections import OrderedDict
-
-import simplejson as json
-import xlrd
+from getopt import getopt, GetoptError
 from deepmerge import always_merger
+from json import dumps
 from unflatten import unflatten
+from sys import argv, stderr
+from xlrd import open_workbook
 
 
 def createJSON(input_file, output_file, lang, keyColumn):
-    wb = xlrd.open_workbook(input_file)
-    sh = wb.sheet_by_index(0)
+    sheet = open_workbook(input_file).sheet_by_index(0)
     translation = {}
 
-    translationColumn = sh.row_values(0).index(lang)
+    translationColumn = sheet.row_values(0).index(lang)
 
-    for rownum in range(1, sh.nrows):
+    for row_num in range(1, sheet.nrows):
         data = OrderedDict()
-        row_values = sh.row_values(rownum)
+        row_values = sheet.row_values(row_num)
         data['translate_key'] = row_values[keyColumn]
         data['translation'] = row_values[translationColumn]
 
         t = unflatten({data['translate_key']: data['translation']})
         translation = always_merger.merge(translation, t)
 
-    j = json.dumps(translation)
+    j = dumps(translation)
 
     with open(output_file, 'w') as f:
         f.write(j)
@@ -34,24 +32,26 @@ def createJSON(input_file, output_file, lang, keyColumn):
 
 
 if __name__ == "__main__":
-    argv = sys.argv[1:]
+    argv = argv[1:]
     input_file = 'translate-file.xlsx'
     output_file = 'fr.json'
     lang = 'fr'
     keyColumn = 1
     try:
-        opts, args = getopt.getopt(argv, "hi:o:l:k",
-                                   ["ifile=", "ofile=", "lang=", "keycolumn="])
-    except getopt.GetoptError as e:
-        sys.stderr.write(f'{type(e).__name__}: {e.msg}\n'
-                         f'Usage: xlsxToJsonTranslate -i <inputfile> '
-                         f'-o <outputfile> -l <lang> -k <keycolumn>')
-        sys.exit(2)
+        opts, args = getopt(argv, "hi:o:l:k",
+                            ["ifile=", "ofile=", "lang=", "keycolumn="])
+    except GetoptError as e:
+        stderr.write(f'{type(e).__name__}: {e.msg}\n'
+                     f'Usage: xlsxToJsonTranslate -i <inputfile> '
+                     f'-o <outputfile> -l <lang> -k <keycolumn>')
+        exit(2)
+
+    # noinspection PyUnboundLocalVariable
     for opt, arg in opts:
         if opt == '-h':
             print('xlsxToJsonTranslate -i <inputfile> '
                   '-o <outputfile> -l <lang> -k <keycolumn>')
-            sys.exit()
+            exit()
         elif opt in ("-i", "--ifile"):
             input_file = arg
         elif opt in ("-o", "--ofile"):
