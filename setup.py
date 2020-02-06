@@ -6,7 +6,8 @@ with open("README.md", "r") as fh:
 setup(
     name='xlsxToJsonTranslate',
     version='0.1.3',
-    description='Convert xlsx file to a json object. Build for i18n angular apps',
+    description='Convert xlsx file to a json object. Build for i18n angular '
+                'apps',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/EtiennePasteur/xlsxToJsonTranslate',
