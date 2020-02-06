@@ -42,9 +42,10 @@ if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(argv, "hi:o:l:k",
                                    ["ifile=", "ofile=", "lang=", "keycolumn="])
-    except getopt.GetoptError:
-        print('xlsxToJsonTranslate -i <inputfile> '
-              '-o <outputfile> -l <lang> -k <keycolumn>')
+    except getopt.GetoptError as e:
+        sys.stderr.write(f'{type(e).__name__}: {e.msg}\n'
+                         f'Usage: xlsxToJsonTranslate -i <inputfile> '
+                         f'-o <outputfile> -l <lang> -k <keycolumn>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
