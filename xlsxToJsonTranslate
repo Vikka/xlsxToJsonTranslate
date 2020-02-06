@@ -33,7 +33,7 @@ def createJSON(input_file, output_file, lang, keyColumn):
 
 if __name__ == "__main__":
     argv = argv[1:]
-    input_file = 'translate-file.xlsx'
+    input_file = str()
     output_file = 'fr.json'
     lang = 'fr'
     keyColumn = 1
@@ -42,17 +42,21 @@ if __name__ == "__main__":
                             ["ifile=", "ofile=", "lang=", "keycolumn="])
     except GetoptError as e:
         stderr.write(f'{type(e).__name__}: {e.msg}\n'
-                     f'Usage: xlsxToJsonTranslate -i <inputfile> '
-                     f'-o <outputfile> -l <lang> -k <keycolumn>')
+                     'Usage: xlsxToJsonTranslate -i <inputfile> '
+                     f'[-o <outputfile: "{output_file}"> '
+                     f'-l <lang: "{lang}"> '
+                     f'-k <keycolumn: "{keyColumn}">]')
         exit(2)
 
     # noinspection PyUnboundLocalVariable
     for opt, arg in opts:
         if opt == '-h':
             print('xlsxToJsonTranslate -i <inputfile> '
-                  '-o <outputfile> -l <lang> -k <keycolumn>')
+                  f'[-o <outputfile: "{output_file}"> '
+                  f'-l <lang: "{lang}"> '
+                  f'-k <keycolumn: "{keyColumn}">]')
             exit()
-        elif opt in ("-i", "--ifile"):
+        if opt in ("-i", "--ifile"):
             input_file = arg
         elif opt in ("-o", "--ofile"):
             output_file = arg
@@ -60,8 +64,19 @@ if __name__ == "__main__":
             lang = arg
         elif opt in ("-k", "--keycolumn"):
             keyColumn = arg
+    if not input_file:
+        stderr.write('No <inputfile>\n'
+                     'Usage: xlsxToJsonTranslate -i <inputfile> '
+                     f'[-o <outputfile: "{output_file}"> '
+                     f'-l <lang: "{lang}"> '
+                     f'-k <keycolumn: "{keyColumn}">]')
+        exit(2)
+    try:
+        createJSON(input_file, output_file, lang, keyColumn)
+    except FileNotFoundError as e:
+        stderr.write(f'{type(e).__name__}: "{e.filename}" {e.strerror}')
+        exit(1)
     print('Input file is :', input_file)
     print('Output file is :', output_file)
     print('Lang is :', lang)
     print('KeyColumn is :', keyColumn)
-    createJSON(input_file, output_file, lang, keyColumn)
